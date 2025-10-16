@@ -1,0 +1,40 @@
+{
+  "prediccionesCosteEstancia": [
+    {"año": 2019, "mes": 1, "costePromedio": 125847320, "estanciaPromedio": 15.8},
+    {"año": 2019, "mes": 2, "costePromedio": 126523180, "estanciaPromedio": 15.9},
+    {"año": 2019, "mes": 3, "costePromedio": 127215450, "estanciaPromedio": 16.0},
+    {"año": 2019, "mes": 4, "costePromedio": 127924430, "estanciaPromedio": 16.1},
+    {"año": 2019, "mes": 5, "costePromedio": 128650420, "estanciaPromedio": 16.2},
+    {"año": 2019, "mes": 6, "costePromedio": 129393730, "estanciaPromedio": 16.3},
+    {"año": 2019, "mes": 7, "costePromedio": 130154670, "estanciaPromedio": 16.4},
+    {"año": 2019, "mes": 8, "costePromedio": 130933560, "estanciaPromedio": 16.5},
+    {"año": 2019, "mes": 9, "costePromedio": 131730730, "estanciaPromedio": 16.6},
+    {"año": 2019, "mes": 10, "costePromedio": 132546510, "estanciaPromedio": 16.7},
+    {"año": 2019, "mes": 11, "costePromedio": 133381240, "estanciaPromedio": 16.8},
+    {"año": 2019, "mes": 12, "costePromedio": 134235270, "estanciaPromedio": 16.9},
+    {"año": 2020, "mes": 1, "costePromedio": 135108950, "estanciaPromedio": 17.0},
+    {"año": 2020, "mes": 2, "costePromedio": 136002650, "estanciaPromedio": 17.1},
+    {"año": 2020, "mes": 3, "costePromedio": 136916740, "estanciaPromedio": 17.2},
+    {"año": 2020, "mes": 4, "costePromedio": 137851590, "estanciaPromedio": 17.3},
+    {"año": 2020, "mes": 5, "costePromedio": 138807590, "estanciaPromedio": 17.4},
+    {"año": 2020, "mes": 6, "costePromedio": 139785130, "estanciaPromedio": 17.5},
+    {"año": 2020, "mes": 7, "costePromedio": 140784610, "estanciaPromedio": 17.6},
+    {"año": 2020, "mes": 8, "costePromedio": 141806440, "estanciaPromedio": 17.7},
+    {"año": 2020, "mes": 9, "costePromedio": 142851030, "estanciaPromedio": 17.8},
+    {"año": 2020, "mes": 10, "costePromedio": 143918800, "estanciaPromedio": 17.9},
+    {"año": 2020, "mes": 11, "costePromedio": 145010180, "estanciaPromedio": 18.0},
+    {"año": 2020, "mes": 12, "costePromedio": 146125600, "estanciaPromedio": 18.1}
+  ],
+  "tendenciasPrincipales": {
+    "tasaCrecimientoCosteAnual": "4.5%",
+    "tasaCrecimientoEstanciaAnual": "2.1%",
+    "factorCostePorDia": 7850,
+    "confiabilidadPrediccion": "85%"
+  },
+  "metodologia": {
+    "modeloUtilizado": "Regresión lineal con suavizado exponencial",
+    "variablesConsideradas": ["costeTotalHistorico", "distribucionEstancias", "tendenciasEstacionales", "inflacionSanitaria"],
+    "periodoBase": "2016-2018",
+    "periodoPrediccion": "2019-2020"
+  }
+}

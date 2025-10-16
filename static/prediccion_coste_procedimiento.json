@@ -1,0 +1,173 @@
+{
+  "prediccionesCosteProcedimientos": {
+    "añoBase": 2018,
+    "costeMedioGlobalBase": 12450,
+    "proyecciones": [
+      {
+        "año": 2019,
+        "costeMedioGlobal": 12823,
+        "procedimientos": [
+          {
+            "codigo": "GZ3ZZZZ",
+            "nombre": "Control de medicación, para salud mental",
+            "costeMedio": 1350,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.2
+          },
+          {
+            "codigo": "GZ2ZZZZ",
+            "nombre": "Intervención en crisis, para salud mental",
+            "costeMedio": 2850,
+            "tendencia": "creciente",
+            "variacionPorcentual": 5.1
+          },
+          {
+            "codigo": "B020ZZZ",
+            "nombre": "Tomografía computarizada (scanner tc) de cerebro",
+            "costeMedio": 4200,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.8
+          },
+          {
+            "codigo": "GZ14ZZZ",
+            "nombre": "Test psicológicos, estado neuroconductual y cognitivo, para salud mental",
+            "costeMedio": 1850,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.5
+          },
+          {
+            "codigo": "GZ11ZZZ",
+            "nombre": "Test psicológicos, personalidad y comportamiento, para salud mental",
+            "costeMedio": 1750,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.3
+          },
+          {
+            "codigo": "GZ51ZZZ",
+            "nombre": "Psicoterapia individual, de comportamiento, para salud mental",
+            "costeMedio": 2200,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.8
+          },
+          {
+            "codigo": "GZ56ZZZ",
+            "nombre": "Psicoterapia individual, de apoyo, para salud mental",
+            "costeMedio": 2100,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.6
+          },
+          {
+            "codigo": "GZ50ZZZ",
+            "nombre": "Psicoterapia individual, interactivo, para salud mental",
+            "costeMedio": 2400,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.9
+          },
+          {
+            "codigo": "B030ZZZ",
+            "nombre": "Imagen por resonancia magnética (rm) de cerebro",
+            "costeMedio": 4800,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.5
+          },
+          {
+            "codigo": "GZHZZZZ",
+            "nombre": "Psicoterapia de grupo, para salud mental",
+            "costeMedio": 1650,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.0
+          }
+        ]
+      },
+      {
+        "año": 2020,
+        "costeMedioGlobal": 13217,
+        "procedimientos": [
+          {
+            "codigo": "GZ3ZZZZ",
+            "nombre": "Control de medicación, para salud mental",
+            "costeMedio": 1407,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.2
+          },
+          {
+            "codigo": "GZ2ZZZZ",
+            "nombre": "Intervención en crisis, para salud mental",
+            "costeMedio": 2995,
+            "tendencia": "creciente",
+            "variacionPorcentual": 5.1
+          },
+          {
+            "codigo": "B020ZZZ",
+            "nombre": "Tomografía computarizada (scanner tc) de cerebro",
+            "costeMedio": 4359,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.8
+          },
+          {
+            "codigo": "GZ14ZZZ",
+            "nombre": "Test psicológicos, estado neuroconductual y cognitivo, para salud mental",
+            "costeMedio": 1933,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.5
+          },
+          {
+            "codigo": "GZ11ZZZ",
+            "nombre": "Test psicológicos, personalidad y comportamiento, para salud mental",
+            "costeMedio": 1825,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.3
+          },
+          {
+            "codigo": "GZ51ZZZ",
+            "nombre": "Psicoterapia individual, de comportamiento, para salud mental",
+            "costeMedio": 2306,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.8
+          },
+          {
+            "codigo": "GZ56ZZZ",
+            "nombre": "Psicoterapia individual, de apoyo, para salud mental",
+            "costeMedio": 2197,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.6
+          },
+          {
+            "codigo": "GZ50ZZZ",
+            "nombre": "Psicoterapia individual, interactivo, para salud mental",
+            "costeMedio": 2518,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.9
+          },
+          {
+            "codigo": "B030ZZZ",
+            "nombre": "Imagen por resonancia magnética (rm) de cerebro",
+            "costeMedio": 4968,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.5
+          },
+          {
+            "codigo": "GZHZZZZ",
+            "nombre": "Psicoterapia de grupo, para salud mental",
+            "costeMedio": 1716,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.0
+          }
+        ]
+      }
+    ],
+    "metodologia": {
+      "tasaInflacionSanitaria": "3.0% anual",
+      "factorDemanda": "1.5% anual",
+      "mejorasTecnologicas": "-0.5% en procedimientos de imagen",
+      "tasaCrecimientoGlobal": "3.0% anual",
+      "modeloUtilizado": "Regresión lineal múltiple con ajuste estacional"
+    },
+    "resumenTendencias": {
+      "procedimientoMayorCrecimiento": "Intervención en crisis (+5.1% anual)",
+      "procedimientoMenorCrecimiento": "Imagen por resonancia magnética (+3.5% anual)",
+      "diferencialCosteProcedimientos": "Rango: 1,407 - 4,968 (2020)",
+      "lineaMediaReferencia": "Coste medio global proyectado como línea base comparativa"
+    }
+  }
+}

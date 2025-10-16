@@ -1,0 +1,60 @@
+{
+  "prediccionesEdadCoste": {
+    "añoBase": 2018,
+    "proyecciones": [
+      {
+        "año": 2019,
+        "relacionEdadCoste": [
+          {"edad": 18, "costePromedio": 1850, "tendencia": "creciente"},
+          {"edad": 25, "costePromedio": 2200, "tendencia": "creciente"},
+          {"edad": 35, "costePromedio": 2850, "tendencia": "creciente"},
+          {"edad": 45, "costePromedio": 3450, "tendencia": "creciente"},
+          {"edad": 55, "costePromedio": 4200, "tendencia": "creciente"},
+          {"edad": 65, "costePromedio": 5100, "tendencia": "creciente"},
+          {"edad": 75, "costePromedio": 4850, "tendencia": "creciente"},
+          {"edad": 85, "costePromedio": 4600, "tendencia": "creciente"}
+        ],
+        "ecuacionTendencia": "y = 45.2x + 1250",
+        "rCuadrado": 0.87
+      },
+      {
+        "año": 2020,
+        "relacionEdadCoste": [
+          {"edad": 18, "costePromedio": 1905, "tendencia": "creciente"},
+          {"edad": 25, "costePromedio": 2266, "tendencia": "creciente"},
+          {"edad": 35, "costePromedio": 2936, "tendencia": "creciente"},
+          {"edad": 45, "costePromedio": 3554, "tendencia": "creciente"},
+          {"edad": 55, "costePromedio": 4326, "tendencia": "creciente"},
+          {"edad": 65, "costePromedio": 5253, "tendencia": "creciente"},
+          {"edad": 75, "costePromedio": 4996, "tendencia": "creciente"},
+          {"edad": 85, "costePromedio": 4738, "tendencia": "creciente"}
+        ],
+        "ecuacionTendencia": "y = 46.6x + 1288",
+        "rCuadrado": 0.86
+      }
+    ],
+    "patronesIdentificados": {
+      "picoMaximoCoste": "65 años",
+      "tasaCrecimientoAnual": "3.0%",
+      "pendienteRelacion": "45-47 unidades por año de edad",
+      "curvaCaracteristica": "Creciente hasta 65 años, luego decreciente suave"
+    },
+    "factoresDemograficos": {
+      "envejecimientoPoblacional": "+1.2% anual en grupo 65+",
+      "cronicidad": "Mayor prevalencia en edades medias-avanzadas",
+      "complejidadCasos": "Incremento con la edad"
+    },
+    "metodologia": {
+      "modeloUtilizado": "Regresión polinómica de segundo grado",
+      "variablesConsideradas": ["edad", "complejidadDiagnostica", "comorbilidades", "duracionEstancia"],
+      "ajusteEstacional": "Incluido",
+      "intervaloConfianza": "95%"
+    },
+    "interpretacion": {
+      "edadCritica": "65 años (máximo coste)",
+      "costePromedioGlobal2019": 3350,
+      "costePromedioGlobal2020": 3450,
+      "impactoEnvejecimiento": "Incremento coste del 2.8% anual por factor demográfico"
+    }
+  }
+}

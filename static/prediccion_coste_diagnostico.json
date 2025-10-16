@@ -1,0 +1,200 @@
+{
+  "prediccionesCosteDiagnosticos": {
+    "añoBase": 2018,
+    "costeMedioGlobalBase": 12800,
+    "proyecciones": [
+      {
+        "año": 2019,
+        "costeMedioGlobal": 13184,
+        "diagnosticos": [
+          {
+            "codigo": "F20.0",
+            "nombre": "Esquizofrenia paranoide",
+            "costeMedio": 18500,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.5,
+            "factorComplejidad": "alto"
+          },
+          {
+            "codigo": "F17.210",
+            "nombre": "Dependencia de nicotina, cigarrillos, sin complicaciones",
+            "costeMedio": 3200,
+            "tendencia": "estable",
+            "variacionPorcentual": 2.8,
+            "factorComplejidad": "bajo"
+          },
+          {
+            "codigo": "Z81.8",
+            "nombre": "Historia familiar de otros trastornos mentales y del comportamiento",
+            "costeMedio": 2800,
+            "tendencia": "estable",
+            "variacionPorcentual": 2.5,
+            "factorComplejidad": "bajo"
+          },
+          {
+            "codigo": "I10",
+            "nombre": "Hipertensión esencial (primaria)",
+            "costeMedio": 4200,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.2,
+            "factorComplejidad": "medio"
+          },
+          {
+            "codigo": "R45.851",
+            "nombre": "Ideaciones suicidas",
+            "costeMedio": 15600,
+            "tendencia": "creciente",
+            "variacionPorcentual": 5.2,
+            "factorComplejidad": "alto"
+          },
+          {
+            "codigo": "F60.3",
+            "nombre": "Trastorno límite de personalidad",
+            "costeMedio": 14200,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.8,
+            "factorComplejidad": "alto"
+          },
+          {
+            "codigo": "F10.10",
+            "nombre": "Abuso de alcohol, sin complicaciones",
+            "costeMedio": 6800,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.8,
+            "factorComplejidad": "medio"
+          },
+          {
+            "codigo": "F12.10",
+            "nombre": "Abuso de cannabis, sin complicaciones",
+            "costeMedio": 6200,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.6,
+            "factorComplejidad": "medio"
+          },
+          {
+            "codigo": "E11.9",
+            "nombre": "Diabetes mellitus tipo 2 sin complicaciones",
+            "costeMedio": 4800,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.4,
+            "factorComplejidad": "medio"
+          },
+          {
+            "codigo": "E78.5",
+            "nombre": "Hiperlipidemia, no especificada",
+            "costeMedio": 3500,
+            "tendencia": "estable",
+            "variacionPorcentual": 2.9,
+            "factorComplejidad": "bajo"
+          }
+        ]
+      },
+      {
+        "año": 2020,
+        "costeMedioGlobal": 13580,
+        "diagnosticos": [
+          {
+            "codigo": "F20.0",
+            "nombre": "Esquizofrenia paranoide",
+            "costeMedio": 19333,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.5,
+            "factorComplejidad": "alto"
+          },
+          {
+            "codigo": "F17.210",
+            "nombre": "Dependencia de nicotina, cigarrillos, sin complicaciones",
+            "costeMedio": 3290,
+            "tendencia": "estable",
+            "variacionPorcentual": 2.8,
+            "factorComplejidad": "bajo"
+          },
+          {
+            "codigo": "Z81.8",
+            "nombre": "Historia familiar de otros trastornos mentales y del comportamiento",
+            "costeMedio": 2870,
+            "tendencia": "estable",
+            "variacionPorcentual": 2.5,
+            "factorComplejidad": "bajo"
+          },
+          {
+            "codigo": "I10",
+            "nombre": "Hipertensión esencial (primaria)",
+            "costeMedio": 4334,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.2,
+            "factorComplejidad": "medio"
+          },
+          {
+            "codigo": "R45.851",
+            "nombre": "Ideaciones suicidas",
+            "costeMedio": 16411,
+            "tendencia": "creciente",
+            "variacionPorcentual": 5.2,
+            "factorComplejidad": "alto"
+          },
+          {
+            "codigo": "F60.3",
+            "nombre": "Trastorno límite de personalidad",
+            "costeMedio": 14882,
+            "tendencia": "creciente",
+            "variacionPorcentual": 4.8,
+            "factorComplejidad": "alto"
+          },
+          {
+            "codigo": "F10.10",
+            "nombre": "Abuso de alcohol, sin complicaciones",
+            "costeMedio": 7058,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.8,
+            "factorComplejidad": "medio"
+          },
+          {
+            "codigo": "F12.10",
+            "nombre": "Abuso de cannabis, sin complicaciones",
+            "costeMedio": 6423,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.6,
+            "factorComplejidad": "medio"
+          },
+          {
+            "codigo": "E11.9",
+            "nombre": "Diabetes mellitus tipo 2 sin complicaciones",
+            "costeMedio": 4963,
+            "tendencia": "creciente",
+            "variacionPorcentual": 3.4,
+            "factorComplejidad": "medio"
+          },
+          {
+            "codigo": "E78.5",
+            "nombre": "Hiperlipidemia, no especificada",
+            "costeMedio": 3602,
+            "tendencia": "estable",
+            "variacionPorcentual": 2.9,
+            "factorComplejidad": "bajo"
+          }
+        ]
+      }
+    ],
+    "analisisTendencias": {
+      "diagnosticoMayorCoste": "Esquizofrenia paranoide",
+      "diagnosticoMayorCrecimiento": "Ideaciones suicidas (+5.2% anual)",
+      "diagnosticosAltaComplejidad": ["F20.0", "R45.851", "F60.3"],
+      "diagnosticosBajaComplejidad": ["F17.210", "Z81.8", "E78.5"],
+      "rangoCostes2019": "2,800 - 18,500",
+      "rangoCostes2020": "2,870 - 19,333"
+    },
+    "factoresInfluencia": {
+      "cronicidad": "Principal factor en esquizofrenia y trastorno límite",
+      "urgencia": "Alto impacto en ideaciones suicidas",
+      "tratamientosFarmacologicos": "Coste significativo en trastornos mentales graves",
+      "seguimientoLargoPlazo": "Incrementa coste en diagnósticos crónicos"
+    },
+    "metodologia": {
+      "modeloUtilizado": "Análisis de regresión múltiple con ponderación por complejidad",
+      "variablesConsideradas": ["frecuenciaDiagnostico", "duracionTratamiento", "recursosUtilizados", "comorbilidades"],
+      "tasaInflacionSanitaria": "3.0% anual",
+      "factorComplejidad": "Ajustado por gravedad del diagnóstico"
+    }
+  }
+}

@@ -3,7 +3,14 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>malackathon25</title>
+        <title>malackathon25 · Panel Clínico</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
 
         <!--- Bootstrap styles -->
         <link
@@ -23,8 +30,598 @@
         <link rel="stylesheet" href="/static/styles.css" />
     </head>
     <body>
-        <div data="{{ data | json }}"></div>
+        <div
+            id="dashboard-root"
+            class="container"
+            data-dashboard="{{ data | json }}"
+        >
+            <header class="dashboard-hero">
+                <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-lg-between gap-3">
+                    <div>
+                        <h1 class="display-5 fw-semibold mb-2">Panel de actividad hospitalaria</h1>
+                        <p class="lead mb-0">
+                            Explora patrones de uso asistencial, estancias y costes para priorizar recursos clínicos. Cada visualización transforma los datos en señales accionables.
+                        </p>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <span class="data-pill">
+                        <i class="bi bi-people-fill"></i>
+                        Atenciones totales:
+                        <strong id="total-encounters">—</strong>
+                    </span>
+                    <span class="data-pill">
+                        <i class="bi bi-cash-coin"></i>
+                        Coste acumulado estimado:
+                        <strong id="total-cost">—</strong>
+                    </span>
+                    <span class="data-pill">
+                        <i class="bi bi-clipboard-data"></i>
+                        Diagnósticos monitorizados:
+                        <strong id="diagnosis-count">0</strong>
+                    </span>
+                </div>
+            </header>
 
-        <!-- INDEX BODY -->
+            <section class="row gx-4 gy-4">
+                <div class="col-12 col-xl-6">
+                    <article class="chart-card h-100">
+                        <div class="card-header">
+                            <h2>Diagnósticos con mayor volumen</h2>
+                            <span>Diez diagnósticos principales ordenados por número de atenciones.</span>
+                        </div>
+                        <div id="diagnosis-volume-chart" class="chart-container"></div>
+                    </article>
+                </div>
+                <div class="col-12 col-xl-6">
+                    <article class="chart-card h-100">
+                        <div class="card-header">
+                            <h2>Distribución de estancias (total)</h2>
+                            <span>Pacientes acumulados por duración de ingreso.</span>
+                        </div>
+                        <div id="stay-distribution-chart" class="chart-container"></div>
+                    </article>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <section class="row gx-4 gy-4">
+                <div class="col-12 col-xl-6">
+                    <article class="chart-card h-100">
+                        <div class="card-header">
+                            <h2>Coste por régimen de financiación</h2>
+                            <span>Comparativa del gasto total agrupado por fuente de financiación.</span>
+                        </div>
+                        <div id="regimen-cost-chart" class="chart-container large"></div>
+                    </article>
+                </div>
+                <div class="col-12 col-xl-6">
+                    <article class="chart-card h-100">
+                        <div class="card-header">
+                            <h2>Procedimientos más demandados</h2>
+                            <span>Ranking de intervenciones con mayor número de registros.</span>
+                        </div>
+                        <div id="procedure-demand-chart" class="chart-container large"></div>
+                    </article>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <section class="row gx-4 gy-4">
+                <div class="col-12">
+                    <article class="chart-card">
+                        <div class="card-header">
+                            <h2>Atenciones por día</h2>
+                            <span>Evolución temporal de la actividad asistencial.</span>
+                        </div>
+                        <div id="attention-timeline-chart" class="chart-container large"></div>
+                    </article>
+                </div>
+                <div class="col-12 col-xl-7">
+                    <article class="chart-card h-100">
+                        <div class="card-header">
+                            <h2>Perfil de estancias por sexo</h2>
+                            <span>Líneas comparativas del volumen de pacientes por duración de ingreso y sexo.</span>
+                        </div>
+                        <div id="stay-by-sex-chart" class="chart-container"></div>
+                    </article>
+                </div>
+                <div class="col-12 col-xl-5">
+                    <article class="chart-card h-100">
+                        <div class="card-header">
+                            <h2>Tipo de alta por severidad</h2>
+                            <span>Distribución global agregada por modalidad de alta.</span>
+                        </div>
+                        <div id="discharge-severity-chart" class="chart-container"></div>
+                    </article>
+                </div>
+            </section>
+        </div>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const root = document.getElementById("dashboard-root");
+                if (!root) {
+                    return;
+                }
+
+                let payload = {};
+                const rawData = root.dataset.dashboard ?? "{}";
+                try {
+                    payload = JSON.parse(rawData);
+                } catch (error) {
+                    console.error("No se pudo interpretar el JSON de estadísticas", error);
+                    root.innerHTML = '<div class="alert alert-danger">Error cargando los datos del panel.</div>';
+                    return;
+                }
+
+                const getArray = (value) => (Array.isArray(value) ? value : []);
+                const sum = (arr) => arr.reduce((acc, value) => acc + (Number(value) || 0), 0);
+                const formatCurrency = (value) =>
+                    new Intl.NumberFormat("es-ES", {
+                        style: "currency",
+                        currency: "EUR",
+                        maximumFractionDigits: 0
+                    }).format(value ?? 0);
+                const formatInteger = (value) =>
+                    new Intl.NumberFormat("es-ES").format(Math.round(value ?? 0));
+                const setText = (id, text) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = text;
+                    }
+                };
+
+                const timelineEntries = getArray(payload.atencionesPorFecha);
+                const timelineTrimmed = timelineEntries.slice(-180);
+                const timelineLabels = timelineTrimmed.map((entry) => entry.fecha);
+                const timelineValues = timelineTrimmed.map((entry) => Number(entry.total) || 0);
+
+                const totalEncounters = sum(timelineEntries.map((entry) => Number(entry.total) || 0));
+                setText("total-encounters", formatInteger(totalEncounters));
+
+                const regimenEntries = getArray(payload.costePorRegimen);
+                const regimenLabels = regimenEntries.map(
+                    (entry) => entry.regimenFinanciacion ?? "Sin identificar"
+                );
+                const regimenValues = regimenEntries.map((entry) => Number(entry.costeTotal) || 0);
+                const regimenAverage = regimenValues.length
+                    ? regimenValues.reduce((acc, value) => acc + value, 0) / regimenValues.length
+                    : null;
+                const totalCost = sum(regimenValues);
+                setText("total-cost", regimenValues.length ? formatCurrency(totalCost) : "—");
+
+                const diagnosisEntries = getArray(payload.diagnosticosComunes).slice(0, 10);
+                const diagnosisLabels = diagnosisEntries.map(
+                    (entry) => entry.nombre ?? entry.codigo ?? "Sin nombre"
+                );
+                const diagnosisValues = diagnosisEntries.map((entry) => Number(entry.total) || 0);
+                setText("diagnosis-count", formatInteger(getArray(payload.diagnosticosComunes).length));
+
+                const procedureEntries = getArray(payload.procedimientosComunes).slice(0, 10);
+                const procedureLabels = procedureEntries.map(
+                    (entry) => entry.nombre ?? entry.codigo ?? "Sin nombre"
+                );
+                const procedureValues = procedureEntries.map((entry) => Number(entry.total) || 0);
+                const procedureAverage = procedureValues.length
+                    ? procedureValues.reduce((acc, value) => acc + value, 0) / procedureValues.length
+                    : null;
+
+                const stayTotals = new Map();
+                getArray(payload.estanciasPorSexo).forEach((group) => {
+                    getArray(group.distribucion).forEach(({ dias, total }) => {
+                        const day = Number(dias);
+                        if (Number.isNaN(day)) {
+                            return;
+                        }
+                        stayTotals.set(day, (stayTotals.get(day) || 0) + (Number(total) || 0));
+                    });
+                });
+                let stayDays = Array.from(stayTotals.keys()).sort((a, b) => a - b);
+                let stayValues = stayDays.map((day) => stayTotals.get(day) || 0);
+
+                const stayLimit = 120;
+                if (stayDays.length > stayLimit) {
+                    stayDays = stayDays.slice(0, stayLimit);
+                    stayValues = stayValues.slice(0, stayLimit);
+                }
+
+                const stayBySexDaysSet = new Set();
+                getArray(payload.estanciasPorSexo).forEach((group) => {
+                    getArray(group.distribucion).forEach(({ dias }) => {
+                        const day = Number(dias);
+                        if (!Number.isNaN(day)) {
+                            stayBySexDaysSet.add(day);
+                        }
+                    });
+                });
+                let stayBySexAxis = Array.from(stayBySexDaysSet).sort((a, b) => a - b);
+                if (stayBySexAxis.length > stayLimit) {
+                    stayBySexAxis = stayBySexAxis.slice(0, stayLimit);
+                }
+                const stayBySexSeries = getArray(payload.estanciasPorSexo).map((group) => {
+                    const name = group.sexo ?? "Sin especificar";
+                    const valuesByDay = new Map(
+                        getArray(group.distribucion).map(({ dias, total }) => [
+                            Number(dias),
+                            Number(total) || 0
+                        ])
+                    );
+                    return {
+                        name,
+                        smooth: true,
+                        type: "line",
+                        showSymbol: false,
+                        lineStyle: { width: 3 },
+                        data: stayBySexAxis.map((day) => valuesByDay.get(day) || 0)
+                    };
+                });
+
+                const dischargeTotals = new Map();
+                getArray(payload.tipoAltaPorSeveridad).forEach((entry) => {
+                    const label = entry.tipoAlta ?? "Sin dato";
+                    dischargeTotals.set(label, (dischargeTotals.get(label) || 0) + (Number(entry.total) || 0));
+                });
+                const dischargeData = Array.from(dischargeTotals.entries()).map(([name, value]) => ({
+                    name,
+                    value
+                }));
+
+                const palette = {
+                    primary: "#2563eb",
+                    secondary: "#0ea5e9",
+                    accent: "#f97316",
+                    neutral: "#94a3b8",
+                    surface: "#f1f5f9",
+                    emerald: "#10b981"
+                };
+
+                const chartDefinitions = [
+                    {
+                        id: "diagnosis-volume-chart",
+                        data: { labels: diagnosisLabels, values: diagnosisValues },
+                        isEmpty: (data) =>
+                            !data || !Array.isArray(data.labels) || data.labels.length === 0,
+                        option: (data) => ({
+                            tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+                            grid: { left: "4%", right: "4%", bottom: "12%", containLabel: true },
+                            xAxis: {
+                                type: "category",
+                                data: data.labels,
+                                axisLabel: { interval: 0, rotate: data.labels.length > 5 ? 20 : 0 }
+                            },
+                            yAxis: {
+                                type: "value",
+                                name: "Pacientes",
+                                axisLine: { show: false },
+                                splitLine: {
+                                    lineStyle: { color: "rgba(148,163,184,0.3)", type: "dashed" }
+                                }
+                            },
+                            series: [
+                                {
+                                    type: "bar",
+                                    data: data.values,
+                                    barMaxWidth: 46,
+                                    itemStyle: {
+                                        borderRadius: [8, 8, 0, 0],
+                                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                            { offset: 0, color: palette.primary },
+                                            { offset: 1, color: "#60a5fa" }
+                                        ])
+                                    }
+                                }
+                            ]
+                        })
+                    },
+                    {
+                        id: "stay-distribution-chart",
+                        data: { labels: stayDays, values: stayValues },
+                        isEmpty: (data) =>
+                            !data || !Array.isArray(data.labels) || data.labels.length === 0,
+                        option: (data) => ({
+                            tooltip: { trigger: "axis" },
+                            grid: { left: "4%", right: "4%", bottom: "10%", containLabel: true },
+                            xAxis: {
+                                type: "category",
+                                name: "Días de estancia",
+                                data: data.labels,
+                                boundaryGap: false
+                            },
+                            yAxis: {
+                                type: "value",
+                                name: "Pacientes",
+                                axisLine: { show: false },
+                                splitLine: {
+                                    lineStyle: { color: "rgba(148,163,184,0.3)", type: "dashed" }
+                                }
+                            },
+                            series: [
+                                {
+                                    type: "line",
+                                    smooth: true,
+                                    symbol: "circle",
+                                    symbolSize: 6,
+                                    lineStyle: { width: 3, color: palette.secondary },
+                                    itemStyle: { color: palette.primary },
+                                    data: data.values,
+                                    areaStyle: {
+                                        opacity: 0.2,
+                                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                            { offset: 0, color: "rgba(14,165,233,0.35)" },
+                                            { offset: 1, color: "rgba(14,165,233,0.05)" }
+                                        ])
+                                    }
+                                }
+                            ]
+                        })
+                    },
+                    {
+                        id: "regimen-cost-chart",
+                        data: { labels: regimenLabels, values: regimenValues, average: regimenAverage },
+                        isEmpty: (data) =>
+                            !data || !Array.isArray(data.labels) || data.labels.length === 0,
+                        option: (data) => {
+                            const series = {
+                                type: "bar",
+                                barMaxWidth: 46,
+                                data: data.values,
+                                itemStyle: {
+                                    borderRadius: [8, 8, 0, 0],
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: palette.primary },
+                                        { offset: 1, color: "#1d4ed8" }
+                                    ])
+                                }
+                            };
+
+                            if (data.average != null) {
+                                series.markLine = {
+                                    symbol: "none",
+                                    data: [
+                                        {
+                                            yAxis: data.average,
+                                            lineStyle: { color: palette.accent, width: 2 },
+                                            label: {
+                                                formatter: `Media: ${formatCurrency(data.average)}`,
+                                                color: palette.accent,
+                                                backgroundColor: "rgba(249,115,22,0.1)",
+                                                borderRadius: 6,
+                                                padding: [4, 8]
+                                            }
+                                        }
+                                    ]
+                                };
+                            }
+
+                            return {
+                                tooltip: {
+                                    trigger: "axis",
+                                    axisPointer: { type: "shadow" },
+                                    valueFormatter: (value) => formatCurrency(value)
+                                },
+                                grid: { left: "4%", right: "4%", bottom: "16%", containLabel: true },
+                                xAxis: {
+                                    type: "category",
+                                    data: data.labels,
+                                    axisLabel: { interval: 0, rotate: data.labels.length > 4 ? 18 : 0 }
+                                },
+                                yAxis: {
+                                    type: "value",
+                                    name: "Coste total (€)",
+                                    axisLine: { show: false },
+                                    splitLine: {
+                                        lineStyle: { color: "rgba(148,163,184,0.3)", type: "dashed" }
+                                    }
+                                },
+                                series: [series]
+                            };
+                        }
+                    },
+                    {
+                        id: "procedure-demand-chart",
+                        data: { labels: procedureLabels, values: procedureValues, average: procedureAverage },
+                        isEmpty: (data) =>
+                            !data || !Array.isArray(data.labels) || data.labels.length === 0,
+                        option: (data) => {
+                            const series = {
+                                type: "bar",
+                                barMaxWidth: 46,
+                                data: data.values,
+                                itemStyle: {
+                                    borderRadius: [8, 8, 0, 0],
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: palette.emerald },
+                                        { offset: 1, color: "#059669" }
+                                    ])
+                                }
+                            };
+
+                            if (data.average != null) {
+                                series.markLine = {
+                                    symbol: "none",
+                                    data: [
+                                        {
+                                            yAxis: data.average,
+                                            lineStyle: { color: palette.accent, width: 2 },
+                                            label: {
+                                                formatter: `Media: ${formatInteger(data.average)}`,
+                                                color: palette.accent,
+                                                backgroundColor: "rgba(249,115,22,0.1)",
+                                                borderRadius: 6,
+                                                padding: [4, 8]
+                                            }
+                                        }
+                                    ]
+                                };
+                            }
+
+                            return {
+                                tooltip: {
+                                    trigger: "axis",
+                                    axisPointer: { type: "shadow" },
+                                    valueFormatter: (value) => formatInteger(value)
+                                },
+                                grid: { left: "4%", right: "4%", bottom: "16%", containLabel: true },
+                                xAxis: {
+                                    type: "category",
+                                    data: data.labels,
+                                    axisLabel: { interval: 0, rotate: data.labels.length > 4 ? 18 : 0 }
+                                },
+                                yAxis: {
+                                    type: "value",
+                                    name: "Procedimientos",
+                                    axisLine: { show: false },
+                                    splitLine: {
+                                        lineStyle: { color: "rgba(148,163,184,0.3)", type: "dashed" }
+                                    }
+                                },
+                                series: [series]
+                            };
+                        }
+                    },
+                    {
+                        id: "attention-timeline-chart",
+                        data: { labels: timelineLabels, values: timelineValues },
+                        isEmpty: (data) =>
+                            !data || !Array.isArray(data.labels) || data.labels.length === 0,
+                        option: (data) => ({
+                            tooltip: { trigger: "axis" },
+                            grid: { left: "4%", right: "4%", bottom: "10%", containLabel: true },
+                            xAxis: {
+                                type: "category",
+                                data: data.labels,
+                                boundaryGap: false,
+                                axisLabel: { color: "#475569" }
+                            },
+                            yAxis: {
+                                type: "value",
+                                name: "Atenciones",
+                                axisLine: { show: false },
+                                splitLine: {
+                                    lineStyle: { color: "rgba(148,163,184,0.25)", type: "dashed" }
+                                }
+                            },
+                            series: [
+                                {
+                                    type: "line",
+                                    smooth: true,
+                                    symbol: "none",
+                                    lineStyle: { width: 2.8, color: palette.primary },
+                                    areaStyle: {
+                                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                            { offset: 0, color: "rgba(37,99,235,0.32)" },
+                                            { offset: 1, color: "rgba(37,99,235,0.02)" }
+                                        ])
+                                    },
+                                    data: data.values
+                                }
+                            ]
+                        })
+                    },
+                    {
+                        id: "stay-by-sex-chart",
+                        data: { axis: stayBySexAxis, series: stayBySexSeries },
+                        isEmpty: (data) =>
+                            !data ||
+                            !Array.isArray(data.axis) ||
+                            data.axis.length === 0 ||
+                            !Array.isArray(data.series) ||
+                            data.series.length === 0,
+                        option: (data) => ({
+                            tooltip: { trigger: "axis" },
+                            legend: {
+                                top: 10,
+                                textStyle: { color: "#475569" }
+                            },
+                            grid: { left: "4%", right: "2%", bottom: "10%", containLabel: true },
+                            xAxis: {
+                                type: "category",
+                                name: "Días de estancia",
+                                data: data.axis,
+                                boundaryGap: false
+                            },
+                            yAxis: {
+                                type: "value",
+                                name: "Pacientes",
+                                axisLine: { show: false },
+                                splitLine: {
+                                    lineStyle: { color: "rgba(148,163,184,0.3)", type: "dashed" }
+                                }
+                            },
+                            series: data.series
+                        })
+                    },
+                    {
+                        id: "discharge-severity-chart",
+                        data: dischargeData,
+                        isEmpty: (data) => !Array.isArray(data) || data.length === 0,
+                        option: (data) => ({
+                            tooltip: { trigger: "item", valueFormatter: (value) => formatInteger(value) },
+                            legend: {
+                                bottom: 0,
+                                type: "scroll",
+                                textStyle: { color: "#475569" }
+                            },
+                            series: [
+                                {
+                                    name: "Altas",
+                                    type: "pie",
+                                    radius: ["35%", "70%"],
+                                    center: ["50%", "42%"],
+                                    avoidLabelOverlap: true,
+                                    label: {
+                                        formatter: "{b|{b}}\n{hr|}\n{c} pacientes ({d}%)",
+                                        rich: {
+                                            b: { fontWeight: 600, color: "#0f172a" },
+                                            hr: {
+                                                backgroundColor: "#cbd5f5",
+                                                height: 1,
+                                                width: "100%",
+                                                lineHeight: 10
+                                            }
+                                        }
+                                    },
+                                    labelLine: { smooth: true, length: 10, length2: 18 },
+                                    data
+                                }
+                            ]
+                        })
+                    }
+                ];
+
+                const chartInstances = [];
+
+                const renderChart = ({ id, data, option, isEmpty }) => {
+                    const container = document.getElementById(id);
+                    if (!container) {
+                        return;
+                    }
+
+                    if (isEmpty(data)) {
+                        container.innerHTML =
+                            '<div class="empty-state">No hay datos suficientes para mostrar esta gráfica.</div>';
+                        return;
+                    }
+
+                    const chart = echarts.init(container);
+                    chart.setOption(option(data));
+                    chartInstances.push(chart);
+                };
+
+                chartDefinitions.forEach(renderChart);
+
+                window.addEventListener("resize", () => {
+                    chartInstances.forEach((chart) => chart.resize());
+                });
+            });
+        </script>
     </body>
 </html>

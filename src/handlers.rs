@@ -7,9 +7,10 @@ use axum::{
 };
 use r2d2_oracle::{OracleConnectionManager, r2d2::Pool};
 use rust_embed::Embed;
-use tracing::trace;
+use tracing::{error, trace};
 
-use crate::templates::{Error404, StatsDashboard};
+use crate::db;
+use crate::templates::{ErrorTemplate, StatsDashboard};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -34,32 +35,44 @@ pub async fn static_handler(uri: Uri) -> impl IntoResponse {
                 .body(Body::from(file.data))
                 .unwrap()
         }
-        None => error404().await.into_response(),
+        None => error_template().await.into_response(),
     }
 }
 
-pub async fn error404() -> impl IntoResponse {
-    trace!("handlers::error404 initialized");
+pub async fn error_template() -> impl IntoResponse {
+    trace!("handlers::error_template initialized");
 
-    let error404_template = Error404 {};
+    let error_template = ErrorTemplate {};
     Html(
-        error404_template
+        error_template
             .render()
-            .expect("Error rendering error404 template"),
+            .expect("Error rendering error template"),
     )
     .into_response()
 }
 
-pub async fn stats_dashboard(uri: Uri, State(state): State<AppState>) -> impl IntoResponse {
+pub async fn stats_dashboard(State(state): State<AppState>) -> impl IntoResponse {
     trace!("handlers::stats_dashboard initialized");
-    let path = uri.path().to_string();
 
-    let stats_dashboard = StatsDashboard { path };
+    let data = match db::fetch_stats_dashboard_json(&state.db_connection_pool) {
+        Ok(payload) => payload,
+        Err(err) => {
+            error!(
+                error = %err,
+                error_chain = ?err,
+                "Failed to load stats dashboard data"
+            );
+            return error_template().await.into_response();
+        }
+    };
 
-    Html(
-        stats_dashboard
-            .render()
-            .expect("Error rendering stats_dashboard template"),
-    )
-    .into_response()
+    let stats_dashboard = StatsDashboard { data };
+
+    match stats_dashboard.render() {
+        Ok(html) => Html(html).into_response(),
+        Err(err) => {
+            error!(error = %err, "Failed to render stats dashboard template");
+            error_template().await.into_response()
+        }
+    }
 }

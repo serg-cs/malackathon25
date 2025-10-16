@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
     let app = Router::new()
         .route("/", get(handlers::stats_dashboard))
         .route("/static/{*file}", get(handlers::static_handler))
-        .fallback(handlers::error404)
+        .fallback(handlers::error_template)
         .with_state(state);
 
     // Setup server in open localhost port 8000

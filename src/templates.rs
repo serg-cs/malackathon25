@@ -1,11 +1,12 @@
 use askama::Template;
+use serde_json::Value;
 
 #[derive(Template)]
-#[template(path = "pages/error404.html")]
-pub struct Error404 {}
+#[template(path = "pages/error.html")]
+pub struct ErrorTemplate {}
 
 #[derive(Template)]
-#[template(path = "pages/stats-dashboard.html")]
+#[template(path = "index.html")]
 pub struct StatsDashboard {
-    pub path: String,
+    pub data: Value,
 }

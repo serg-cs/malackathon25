@@ -41,11 +41,15 @@
                 background-color: var(--bs-body-bg);
                 color: var(--bs-body-color);
                 box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+                display: flex;
+                flex-direction: column;
+                height: 100%;
             }
             .chart-body {
                 height: 320px;
                 overflow: hidden;
                 position: relative;
+                flex: 0 0 auto;
             }
             .chart-container h5 {
                 font-weight: 600;
@@ -66,6 +70,10 @@
                 font-size: 1.25rem;
                 transition: all 0.2s ease;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+                line-height: 1;
+            }
+            .btn-round .bi {
+                vertical-align: middle;
             }
             [data-bs-theme="light"] .btn-round {
                 background-color: #f8f9fa;
@@ -103,6 +111,49 @@
             }
             .kpi-card .card-body {
                 padding: 1.5rem;
+            }
+            .chart-legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                justify-content: center;
+                padding: 0.75rem 0 0;
+                margin-top: 1rem;
+                border-top: 1px solid var(--bs-border-color);
+                flex: 0 0 auto;
+            }
+            .chart-legend .legend-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.45rem 0.85rem;
+                border-radius: 999px;
+                border: 1px solid var(--bs-border-color);
+                background-color: var(--bs-body-bg);
+                color: inherit;
+                font-size: 0.85rem;
+                line-height: 1;
+                cursor: pointer;
+                transition: transform 0.12s ease, opacity 0.18s ease,
+                    background-color 0.18s ease, border-color 0.18s ease;
+            }
+            .chart-legend .legend-item:hover {
+                transform: translateY(-1px);
+                background-color: rgba(148, 163, 184, 0.12);
+            }
+            .chart-legend .legend-item.inactive {
+                opacity: 0.55;
+                text-decoration: line-through;
+            }
+            .chart-legend .legend-item:focus-visible {
+                outline: 2px solid rgba(37, 99, 235, 0.6);
+                outline-offset: 2px;
+            }
+            .chart-legend .legend-item .legend-swatch {
+                width: 12px;
+                height: 12px;
+                border-radius: 4px;
+                flex-shrink: 0;
             }
         </style>
     </head>
@@ -314,11 +365,7 @@
                     ? `${text.slice(0, maxLength).trimEnd()}…`
                     : text;
             };
-            const wrapLabel = (
-                label,
-                maxLineLength = 18,
-                maxLines = 3,
-            ) => {
+            const wrapLabel = (label, maxLineLength = 18, maxLines = 3) => {
                 const text =
                     typeof label === "string" ? label : String(label ?? "");
                 const words = text.split(/\s+/);
@@ -326,9 +373,7 @@
                 let current = "";
 
                 for (const word of words) {
-                    const candidate = current
-                        ? `${current} ${word}`
-                        : word;
+                    const candidate = current ? `${current} ${word}` : word;
 
                     if (candidate.length > maxLineLength) {
                         if (current) {
@@ -340,9 +385,10 @@
                                 );
                                 return lines.join("\n");
                             }
-                            current = word.length > maxLineLength
-                                ? shortenLabel(word, maxLineLength)
-                                : word;
+                            current =
+                                word.length > maxLineLength
+                                    ? shortenLabel(word, maxLineLength)
+                                    : word;
                         } else {
                             lines.push(
                                 word.length > maxLineLength
@@ -524,12 +570,100 @@
                 }),
             );
 
+            const basePalette = [
+                "#5470C6",
+                "#91CC75",
+                "#FAC858",
+                "#EE6666",
+                "#73C0DE",
+                "#3BA272",
+                "#FC8452",
+                "#9A60B4",
+                "#EA7CCC",
+            ];
+            const pickSeriesColors = (count) =>
+                Array.from({ length: count }, (_, index) =>
+                    basePalette[index % basePalette.length],
+                );
+
+            function mountSelectableLegend({
+                chart,
+                container,
+                labels,
+                values,
+                colors,
+            }) {
+                const selected = labels.map(() => true);
+
+                container.setAttribute("role", "group");
+                container.setAttribute(
+                    "aria-label",
+                    "Leyenda interactiva de categorías",
+                );
+
+                const applySelection = () => {
+                    const data = values.map((value, index) => ({
+                        name: labels[index],
+                        value: selected[index] ? value : null,
+                    }));
+                    chart.setOption({ series: [{ data }] });
+                };
+
+                const renderLegend = () => {
+                    container.innerHTML = "";
+                    labels.forEach((label, index) => {
+                        const palette =
+                            colors && colors.length
+                                ? colors
+                                : basePalette;
+                        const swatchColor =
+                            palette[index % palette.length];
+                        const item = document.createElement("button");
+                        item.type = "button";
+                        item.className = `legend-item${
+                            selected[index] ? "" : " inactive"
+                        }`;
+                        item.setAttribute(
+                            "aria-pressed",
+                            selected[index] ? "true" : "false",
+                        );
+                        item.innerHTML = `<span class="legend-swatch" style="background:${swatchColor}"></span><span>${label}</span>`;
+
+                        item.addEventListener("click", () => {
+                            selected[index] = !selected[index];
+                            applySelection();
+                            renderLegend();
+                        });
+                        item.addEventListener("mouseenter", () => {
+                            chart.dispatchAction({
+                                type: "highlight",
+                                seriesIndex: 0,
+                                dataIndex: index,
+                            });
+                        });
+                        item.addEventListener("mouseleave", () => {
+                            chart.dispatchAction({
+                                type: "downplay",
+                                seriesIndex: 0,
+                                dataIndex: index,
+                            });
+                        });
+
+                        container.appendChild(item);
+                    });
+                };
+
+                applySelection();
+                renderLegend();
+            }
+
             const chartsConfig = [
                 {
                     title: "Diagnósticos con mayor volumen",
                     description:
                         "Diez diagnósticos principales ordenados por número de atenciones.",
                     colClass: "col-12 col-lg-6",
+                    palette: pickSeriesColors(diagnosisValues.length || 0),
                     xLabelMaxLength: 16,
                     xLabelMaxLines: 3,
                     data: { labels: diagnosisLabels, values: diagnosisValues },
@@ -545,24 +679,17 @@
                         grid: {
                             left: "4%",
                             right: "4%",
-                            bottom: "26%",
+                            bottom: "14%",
                             containLabel: true,
                         },
                         xAxis: {
                             type: "category",
                             data: data.labels,
                             axisLabel: {
-                                color: textColor,
-                                interval: 0,
-                                rotate: 0,
-                                formatter: (value) =>
-                                    wrapLabel(
-                                        value,
-                                        ctx?.xLabelMaxLength ?? 18,
-                                        ctx?.xLabelMaxLines ?? 2,
-                                    ),
+                                show: false,
                             },
-                            axisLine: { lineStyle: { color: textColor } },
+                            axisTick: { show: false },
+                            axisLine: { show: false },
                         },
                         yAxis: {
                             type: "value",
@@ -579,24 +706,38 @@
                         series: [
                             {
                                 type: "bar",
-                                data: data.values,
+                                data: data.labels.map((label, index) => ({
+                                    name: label,
+                                    value: data.values[index],
+                                })),
                                 barMaxWidth: 48,
                                 itemStyle: {
                                     borderRadius: [8, 8, 0, 0],
-                                    color: new echarts.graphic.LinearGradient(
-                                        0,
-                                        0,
-                                        0,
-                                        1,
-                                        [
-                                            { offset: 0, color: "#2563eb" },
-                                            { offset: 1, color: "#60a5fa" },
-                                        ],
-                                    ),
+                                    color: (params) => {
+                                        const palette =
+                                            ctx?.palette?.length
+                                                ? ctx.palette
+                                                : basePalette;
+                                        return palette[
+                                            params.dataIndex % palette.length
+                                        ];
+                                    },
                                 },
                             },
                         ],
                     }),
+                    buildLegend(chart, container) {
+                        const colors = this.palette.length
+                            ? this.palette
+                            : pickSeriesColors(this.data.labels.length);
+                        mountSelectableLegend({
+                            chart,
+                            container,
+                            labels: this.data.labels,
+                            values: this.data.values,
+                            colors,
+                        });
+                    },
                 },
                 {
                     title: "Distribución global de estancias",
@@ -673,6 +814,7 @@
                     description:
                         "Comparativa del gasto total agrupado por régimen financiero.",
                     colClass: "col-12 col-lg-6",
+                    palette: pickSeriesColors(regimenLabels.length || 0),
                     xLabelMaxLength: 24,
                     xLabelMaxLines: 3,
                     xLabelMaxLines: 3,
@@ -686,22 +828,23 @@
                         !Array.isArray(data.labels) ||
                         data.labels.length === 0,
                     getOption: (data, textColor, ctx) => {
+                        const palette =
+                            ctx?.palette?.length > 0
+                                ? ctx.palette
+                                : basePalette;
                         const series = {
                             type: "bar",
-                            data: data.values,
+                            data: data.labels.map((label, index) => ({
+                                name: label,
+                                value: data.values[index],
+                            })),
                             barMaxWidth: 48,
                             itemStyle: {
                                 borderRadius: [8, 8, 0, 0],
-                                color: new echarts.graphic.LinearGradient(
-                                    0,
-                                    0,
-                                    0,
-                                    1,
-                                    [
-                                        { offset: 0, color: "#2563eb" },
-                                        { offset: 1, color: "#1d4ed8" },
+                                color: (params) =>
+                                    palette[
+                                        params.dataIndex % palette.length
                                     ],
-                                ),
                             },
                         };
 
@@ -722,6 +865,9 @@
                                                 "rgba(249,115,22,0.1)",
                                             borderRadius: 6,
                                             padding: [4, 8],
+                                            position: "insideStartTop",
+                                            align: "left",
+                                            distance: 12,
                                         },
                                     },
                                 ],
@@ -738,24 +884,17 @@
                             grid: {
                                 left: "4%",
                                 right: "4%",
-                                bottom: "28%",
+                                bottom: "16%",
                                 containLabel: true,
                             },
                             xAxis: {
                                 type: "category",
                                 data: data.labels,
                                 axisLabel: {
-                                    color: textColor,
-                                    interval: 0,
-                                    rotate: 0,
-                                    formatter: (value) =>
-                                        wrapLabel(
-                                            value,
-                                            ctx?.xLabelMaxLength ?? 20,
-                                            ctx?.xLabelMaxLines ?? 2,
-                                        ),
+                                    show: false,
                                 },
-                                axisLine: { lineStyle: { color: textColor } },
+                                axisTick: { show: false },
+                                axisLine: { show: false },
                             },
                             yAxis: {
                                 type: "value",
@@ -772,12 +911,25 @@
                             series: [series],
                         };
                     },
+                    buildLegend(chart, container) {
+                        const colors = this.palette.length
+                            ? this.palette
+                            : pickSeriesColors(this.data.labels.length);
+                        mountSelectableLegend({
+                            chart,
+                            container,
+                            labels: this.data.labels,
+                            values: this.data.values,
+                            colors,
+                        });
+                    },
                 },
                 {
                     title: "Procedimientos más demandados",
                     description:
                         "Ranking de intervenciones con mayor número de registros.",
                     colClass: "col-12 col-lg-6",
+                    palette: pickSeriesColors(procedureLabels.length || 0),
                     xLabelMaxLength: 24,
                     data: {
                         labels: procedureLabels,
@@ -789,22 +941,23 @@
                         !Array.isArray(data.labels) ||
                         data.labels.length === 0,
                     getOption: (data, textColor, ctx) => {
+                        const palette =
+                            ctx?.palette?.length > 0
+                                ? ctx.palette
+                                : basePalette;
                         const series = {
                             type: "bar",
-                            data: data.values,
+                            data: data.labels.map((label, index) => ({
+                                name: label,
+                                value: data.values[index],
+                            })),
                             barMaxWidth: 48,
                             itemStyle: {
                                 borderRadius: [8, 8, 0, 0],
-                                color: new echarts.graphic.LinearGradient(
-                                    0,
-                                    0,
-                                    0,
-                                    1,
-                                    [
-                                        { offset: 0, color: "#10b981" },
-                                        { offset: 1, color: "#059669" },
+                                color: (params) =>
+                                    palette[
+                                        params.dataIndex % palette.length
                                     ],
-                                ),
                             },
                         };
 
@@ -825,6 +978,9 @@
                                                 "rgba(249,115,22,0.1)",
                                             borderRadius: 6,
                                             padding: [4, 8],
+                                            position: "insideStartTop",
+                                            align: "left",
+                                            distance: 12,
                                         },
                                     },
                                 ],
@@ -840,24 +996,17 @@
                             grid: {
                                 left: "4%",
                                 right: "4%",
-                                bottom: "28%",
+                                bottom: "16%",
                                 containLabel: true,
                             },
                             xAxis: {
                                 type: "category",
                                 data: data.labels,
                                 axisLabel: {
-                                    color: textColor,
-                                    interval: 0,
-                                    rotate: 0,
-                                    formatter: (value) =>
-                                        wrapLabel(
-                                            value,
-                                            ctx?.xLabelMaxLength ?? 20,
-                                            ctx?.xLabelMaxLines ?? 2,
-                                        ),
+                                    show: false,
                                 },
-                                axisLine: { lineStyle: { color: textColor } },
+                                axisTick: { show: false },
+                                axisLine: { show: false },
                             },
                             yAxis: {
                                 type: "value",
@@ -873,6 +1022,18 @@
                             },
                             series: [series],
                         };
+                    },
+                    buildLegend(chart, container) {
+                        const colors = this.palette.length
+                            ? this.palette
+                            : pickSeriesColors(this.data.labels.length);
+                        mountSelectableLegend({
+                            chart,
+                            container,
+                            labels: this.data.labels,
+                            values: this.data.values,
+                            colors,
+                        });
                     },
                 },
                 {
@@ -1064,10 +1225,13 @@
 
                 chartsConfig.forEach((chartInfo, index) => {
                     const col = document.createElement("div");
-                    col.className = chartInfo.colClass ?? "col-12";
+                    col.className = `${
+                        chartInfo.colClass ?? "col-12"
+                    } d-flex flex-column`;
 
                     const container = document.createElement("div");
-                    container.className = "chart-container";
+                    container.className =
+                        "chart-container flex-fill d-flex flex-column";
 
                     const header = document.createElement("div");
                     header.className = "chart-header mb-3";
@@ -1109,6 +1273,12 @@
                             chartInfo,
                         ),
                     );
+                    if (typeof chartInfo.buildLegend === "function") {
+                        const legendHost = document.createElement("div");
+                        legendHost.className = "chart-legend";
+                        container.appendChild(legendHost);
+                        chartInfo.buildLegend(chart, legendHost);
+                    }
                     chartInstances.push(chart);
                 });
             }

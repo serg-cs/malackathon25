@@ -1,11 +1,11 @@
-use std::env;
-
 use anyhow::{Context, Result, anyhow};
+use cached::proc_macro::cached;
 use r2d2_oracle::{
     OracleConnectionManager,
     oracle::{Error as OracleError, ErrorKind as OracleErrorKind},
     r2d2::Pool,
 };
+use std::{env, time::Duration};
 use tracing::{info, trace};
 
 pub fn setup_db() -> Pool<OracleConnectionManager> {
@@ -26,7 +26,16 @@ pub fn setup_db() -> Pool<OracleConnectionManager> {
         .expect("Error initializing DB connection")
 }
 
-pub fn fetch_stats_dashboard_json(pool: &Pool<OracleConnectionManager>) -> Result<serde_json::Value> {
+#[cached(
+    time = 86_400,
+    result = true,
+    sync_writes = "default",
+    key = "()",
+    convert = r#"{ () }"#
+)]
+pub fn fetch_stats_dashboard_json(
+    pool: &Pool<OracleConnectionManager>,
+) -> Result<serde_json::Value> {
     trace!("db::fetch_stats_dashboard_json initialized");
 
     let raw_query = include_str!("../database/fetch_stats_dashboard_json.sql");
